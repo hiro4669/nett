@@ -1,0 +1,19 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+_ANALYZE_H_	/home/hiroaki/Samples/nett/pcap/analyze.h	/^#define _ANALYZE_H_$/;"	macro	line:3
+OBJS	/home/hiroaki/Samples/nett/pcap/Makefile	/^OBJS=pcap.o analyze.o print.o$/;"	macro	line:1
+SRCS	/home/hiroaki/Samples/nett/pcap/Makefile	/^SRCS=$(OBJS:%.o=%.c)$/;"	macro	line:2
+CFLAGS	/home/hiroaki/Samples/nett/pcap/Makefile	/^CFLAGS=-g -Wall$/;"	macro	line:3
+LDLIBS	/home/hiroaki/Samples/nett/pcap/Makefile	/^LDLIBS=$/;"	macro	line:4
+TARGET	/home/hiroaki/Samples/nett/pcap/Makefile	/^TARGET=pcap$/;"	macro	line:5
+_PCAP_H_	/home/hiroaki/Samples/nett/pcap/pcap.h	/^#define _PCAP_H_$/;"	macro	line:3
+init_row_socket	/home/hiroaki/Samples/nett/pcap/pcap.c	/^static int init_row_socket(char *device, int promMode, int ipOnly) {$/;"	function	line:15	file:	signature:(char *device, int promMode, int ipOnly)
+my_ether_ntoa_r	/home/hiroaki/Samples/nett/pcap/pcap.c	/^char* my_ether_ntoa_r(uint8_t *hwaddr, char* buf, socklen_t size) {$/;"	function	line:76	signature:(uint8_t *hwaddr, char* buf, socklen_t size)
+main	/home/hiroaki/Samples/nett/pcap/pcap.c	/^int main(int argc, char *argv[]) {$/;"	function	line:151	signature:(int argc, char *argv[])
+analyze_packet	/home/hiroaki/Samples/nett/pcap/analyze.c	/^int analyze_packet(uint8_t* data, int size) {$/;"	function	line:8	signature:(uint8_t* data, int size)
+ether_ntoa_r	/home/hiroaki/Samples/nett/pcap/print.c	/^static char* ether_ntoa_r(uint8_t* hwaddr, char* buf, socklen_t size) {$/;"	function	line:8	file:	signature:(uint8_t* hwaddr, char* buf, socklen_t size)
+print_ether_header	/home/hiroaki/Samples/nett/pcap/print.c	/^int print_ether_header(struct ether_header *eh, FILE *fp) {$/;"	function	line:20	signature:(struct ether_header *eh, FILE *fp)
