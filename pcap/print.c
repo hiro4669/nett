@@ -12,7 +12,7 @@
 #include <netinet/if_ether.h>
 #include <netinet/ip.h> // struct iphdr
 //#include	<netinet/ip6.h>
-//#include	<netinet/ip_icmp.h>
+#include <netinet/ip_icmp.h>
 //#include	<netinet/icmp6.h>
 //#include	<netinet/tcp.h>
 //#include	<netinet/udp.h>
@@ -93,6 +93,29 @@ static char* proto[]={
     "UDP"
 };
 
+static char	*icmp_type[]={
+	"Echo Reply",
+	"undefined",
+	"undefined",
+	"Destination Unreachable",
+	"Source Quench",
+	"Redirect",
+	"undefined",
+	"undefined",
+	"Echo Request",
+	"Router Adverisement",
+	"Router Selection",
+	"Time Exceeded for Datagram",
+	"Parameter Problem on Datagram",
+	"Timestamp Request",
+	"Timestamp Reply",
+	"Information Request",
+	"Information Reply",
+	"Address Mask Request",
+	"Address Mask Reply"
+};
+
+
 
 
 /* show mac address */
@@ -119,6 +142,28 @@ static char* ip_ip2str(uint32_t ip, char* buf, socklen_t size) {
     addr = (struct in_addr *)&ip;
     inet_ntop(AF_INET, addr, buf, size);
     return buf;
+}
+
+
+int print_icmp(struct icmp* icmp, FILE *fp) {
+    fprintf(fp,"icmp--------------------------------------\n");
+    fprintf(fp,"icmp_type = %u",icmp->icmp_type);
+	if (icmp->icmp_type <= 18) {
+		fprintf(fp,"(%s), ",icmp_type[icmp->icmp_type]);
+	} else {
+        fprintf(fp,"(undefined), ");
+	}
+
+    fprintf(fp, "icmp_code = %u, ", icmp->icmp_code);
+    fprintf(fp, "icmp_cksum = %u\n", ntohs(icmp->icmp_cksum));
+
+    if (icmp->icmp_type == 0 || icmp->icmp_type == 8) {
+        fprintf(fp,"icmp_id=%u, ",ntohs(icmp->icmp_id));
+        fprintf(fp,"icmp_seq=%u\n",ntohs(icmp->icmp_seq));
+    }
+
+
+    return 0;
 }
 
 

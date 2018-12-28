@@ -13,6 +13,7 @@ int analyze_packet(uint8_t* data, int size);
 int print_ether_header(struct ether_header *eh, FILE *fp);
 int print_arp(struct ether_arp* eth_arp, FILE *fp);
 int print_ip_header(struct iphdr *ip_hdr, uint8_t* option, int option_len, FILE* fp);
+int print_icmp(struct icmp* icmp, FILE *fp);
 
 /* checksum.c */
 uint16_t checksum(uint16_t* buf, int size);

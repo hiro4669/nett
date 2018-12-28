@@ -4,6 +4,7 @@
 #include <net/ethernet.h> // struct ether_header
 #include <netinet/if_ether.h> // ether_arp
 #include <netinet/ip.h> // struct iphdr
+#include <netinet/ip_icmp.h> // struct icmp
 
 #include <errno.h>
 #include <unistd.h>
@@ -24,6 +25,18 @@ int analyze_arp(struct ether_arp *eth_arp, int size) {
     return 0;
 }
 
+int analyze_icmp(struct icmp* icmp_hdr, int size) {
+
+    if (size < sizeof(struct icmp)) {
+        fprintf(stderr, "size(%d) < sizeof(struct icmp)\n", size);
+        return -1;
+    }
+    printf("analyze icmp ok\n");
+    print_icmp(icmp_hdr, stdout);
+
+    return 0;
+}
+
 int analyze_ip(struct iphdr* ip_hdr, int size) {
 
     uint8_t* ptr;
@@ -35,7 +48,7 @@ int analyze_ip(struct iphdr* ip_hdr, int size) {
         fprintf(stderr, "lest(%d) < sizeof(struct ipadr)\n", lest);
     }
 
-
+    /*
     printf("heder len = %d\n", ip_hdr->ihl * 4);
     ptr = (uint8_t*)ip_hdr;
     for (int i = 0; i < 20; ++i) {
@@ -43,9 +56,8 @@ int analyze_ip(struct iphdr* ip_hdr, int size) {
         printf("%02x ", ptr[i]);
     }
     printf("\n");
+    */
 
-
-//    printf("lest        = %d\n", lest);
     lest -= sizeof(struct iphdr);
     option = ptr = (uint8_t*)&ip_hdr[1];
 
@@ -55,7 +67,6 @@ int analyze_ip(struct iphdr* ip_hdr, int size) {
     printf("lest        = %d\n", lest);
     */
     option_len = ip_hdr->ihl * 4 - sizeof(struct iphdr);
-//    printf("option len = %d\n", option_len);
     if (option_len > 0) {
         if (option_len >= 1500) {
             fprintf(stderr, "IP optionlen(%d): too big\n", option_len);
@@ -72,10 +83,24 @@ int analyze_ip(struct iphdr* ip_hdr, int size) {
         fprintf(stderr, "bad ip checksum\n");
         return -1;
     }
-
     print_ip_header(ip_hdr, option, option_len, stdout);
 
+    switch (ip_hdr->protocol) {
+        case IPPROTO_ICMP: {
+            uint16_t len = ntohs(ip_hdr->tot_len) - ip_hdr->ihl * 4;
+            if (checksum((uint16_t*)ptr, len)) {
+                fprintf(stderr, "bad icmp checksum\n");
+                return -1;
+            }
+            printf("icmp checksum OK\n");
+            analyze_icmp((struct icmp*)ptr, lest);
 
+            break;
+        }
+        default: {
+            fprintf(stderr, "protocol = %u\n", ip_hdr->protocol);
+        }
+    }
 
     return 0;
 }
