@@ -1,4 +1,4 @@
-OBJS=pcap.o analyze.o print.o
+OBJS=pcap.o analyze.o print.o checksum.o
 SRCS=$(OBJS:%.o=%.c)
 CFLAGS=-g -Wall
 LDLIBS=

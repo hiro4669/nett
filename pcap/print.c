@@ -2,8 +2,24 @@
 #include <stdint.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <arpa/inet.h> // inet_ntop
+//#include	<string.h>
+//#include	<unistd.h>
+//#include	<sys/socket.h>
+//#include	<linux/if.h>
+//#include	<net/ethernet.h>
+//#include	<netpacket/packet.h>
+#include <netinet/if_ether.h>
+#include <netinet/ip.h> // struct iphdr
+//#include	<netinet/ip6.h>
+//#include	<netinet/ip_icmp.h>
+//#include	<netinet/icmp6.h>
+//#include	<netinet/tcp.h>
+//#include	<netinet/udp.h>
 
 #include "pcap.h"
+
+
 
 /* hardware type from /usr/include/net/if_arp.h */
 static char *hrd[] = {
@@ -56,6 +72,29 @@ static char *opcode[] = {
     "(ATM)ARP NAK"
 };
 
+static char* proto[]={
+    "undefined",
+    "ICMP",
+    "IGMP",
+    "undefined",
+    "IPIP",
+    "undefined",
+    "TCP",
+    "undefined",
+    "EGP",
+    "undefined",
+    "undefined",
+    "undefined",
+    "PUP",
+    "undefined",
+    "undefined",
+    "undefined",
+    "undefined",
+    "UDP"
+};
+
+
+
 /* show mac address */
 static char* ether_ntoa_r(uint8_t* hwaddr, char* buf, socklen_t size) {
     snprintf(buf, size, "%02x:%02x:%02x:%02x:%02x:%02x",
@@ -69,10 +108,54 @@ static char* ether_ntoa_r(uint8_t* hwaddr, char* buf, socklen_t size) {
     return buf;
 }
 
-/* show ip address */
+/* show ip address for arp packet */
 static char* arp_ip2str(uint8_t* ip, char *buf, socklen_t size) {
     snprintf(buf,size,"%u.%u.%u.%u",ip[0],ip[1],ip[2],ip[3]);
     return(buf);
+}
+
+static char* ip_ip2str(uint32_t ip, char* buf, socklen_t size) {
+    struct in_addr* addr;
+    addr = (struct in_addr *)&ip;
+    inet_ntop(AF_INET, addr, buf, size);
+    return buf;
+}
+
+
+int print_ip_header(struct iphdr *ip_hdr, uint8_t* option, int option_len, FILE* fp) {
+//    int i;
+    char buf[80];
+
+    fprintf(fp,"ip--------------------------------------\n");
+	fprintf(fp,"version=%u,",ip_hdr->version);
+	fprintf(fp,"ihl=%u,",ip_hdr->ihl);
+	fprintf(fp,"tos=%x,",ip_hdr->tos);
+	fprintf(fp,"tot_len=%u,",ntohs(ip_hdr->tot_len));
+	fprintf(fp,"id=%u\n",ntohs(ip_hdr->id));
+	fprintf(fp,"frag_off=%x,%u,",(ntohs(ip_hdr->frag_off)>>13)&0x07,ntohs(ip_hdr->frag_off)&0x1FFF);
+	fprintf(fp,"frag_off(d)=%x,%u,",(ip_hdr->frag_off>>13)&0x07,ntohs(ip_hdr->frag_off)&0x1FFF);
+	fprintf(fp,"ttl=%u,",ip_hdr->ttl);
+	fprintf(fp,"protocol=%u",ip_hdr->protocol);
+    if (ip_hdr->protocol <= 17) {
+		fprintf(fp,"(%s),", proto[ip_hdr->protocol]);
+	} else{
+        fprintf(fp,"(undefined),");
+	}
+    fprintf(fp,"check=%x\n",ip_hdr->check);
+	fprintf(fp,"saddr=%s,",ip_ip2str(ip_hdr->saddr,buf,sizeof(buf)));
+	fprintf(fp,"daddr=%s\n",ip_ip2str(ip_hdr->daddr,buf,sizeof(buf)));
+
+    if (option_len > 0) {
+		fprintf(fp,"option:");
+		for (int i = 0; i < option_len; ++i){
+			if (i != 0){
+				fprintf(fp,":%02x",option[i]);
+			} else {
+				fprintf(fp,"%02x",option[i]);
+			}
+		}
+	}
+    return 0;
 }
 
 int print_arp(struct ether_arp* eth_arp, FILE *fp) {
@@ -80,6 +163,8 @@ int print_arp(struct ether_arp* eth_arp, FILE *fp) {
 
     fprintf(fp, "arp-----------------------------------\n");
     fprintf(fp, "arp_hrd=%u", ntohs(eth_arp->arp_hrd));
+
+
     if (ntohs(eth_arp->arp_hrd) <= 32) {
         fprintf(fp, "(%s),", hrd[ntohs(eth_arp->arp_hrd)]);
     } else {
