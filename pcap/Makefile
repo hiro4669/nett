@@ -1,10 +1,19 @@
-OBJS=pcap.o analyze.o print.o checksum.o
-SRCS=$(OBJS:%.o=%.c)
+#OBJS=pcap.o analyze.o print.o checksum.o
+OBJS=analyze.o print.o checksum.o
+PCAP=pcap.o
+TEST=test.o
+#SRCS=$(OBJS:%.o=%.c)
+
 CFLAGS=-g -Wall
 LDLIBS=
 TARGET=pcap
-$(TARGET):$(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS) $(LDLIBS)
+$(TARGET):$(OBJS) $(PCAP)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJS) $(PCAP) $(LDLIBS)
+
+test: $(OBJS) $(TEST)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(TEST) $(LDLIBS)
+.c.o:
+	$(CC) -c $(CFLAGS) $*.c
 
 clean:
-	rm -rf $(OBJS) $(TARGET) *~
+	rm -rf $(OBJS) $(PCAP) $(TEST) $(TARGET) *~

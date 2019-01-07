@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <net/ethernet.h> // struct ether_header
 #include <netinet/ip.h> // struct iphdr
+#include <netinet/ip_icmp.h> // struct icmp
+#include <netinet/if_ether.h> // ether_arp
 
 /* analyze.c */
 int analyze_packet(uint8_t* data, int size);
@@ -17,4 +19,5 @@ int print_icmp(struct icmp* icmp, FILE *fp);
 
 /* checksum.c */
 uint16_t checksum(uint16_t* buf, int size);
+int check_ipdata_checksum(struct iphdr* ip_hdr, uint8_t* data, int len);
 #endif
